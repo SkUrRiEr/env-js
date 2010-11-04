@@ -42,8 +42,6 @@ test('Envjs.uri', function(){
     equals(uri, 'http://envjs.com/specs/env/spec.html', 'uri');
     equals(uri.toString(), 'http://envjs.com/specs/env/spec.html', 'uri');
 
-    document = null;
-
     uri = Envjs.uri('http://envjs.com/specs/env/spec.html');
     ok(uri, 'Able to create uri');
     equals(uri, 'http://envjs.com/specs/env/spec.html', 'uri');
@@ -59,6 +57,15 @@ test('Envjs.uri', function(){
 
     uri = Envjs.uri('file:///foo/bar/');
     equals(uri, 'file:///foo/bar/', 'File, absolute, with ending "/"');
+	
+	// handle windows style file paths, firefox will convert this to a file: URL
+	uri = Envjs.uri('C:\\foo\\bar\\index.html');
+    equals(uri, 'file:///C:/foo/bar/index.html', 'File, absolute, converted slashes');
+
+	// when there is no document and you pass a relative path, it should be converted to a file: URL
+    document = null;
+    uri = Envjs.uri('specs/env/spec.html');
+    ok(/file\:\/\/\/.*\/specs\/env\/spec.html/.test(uri), 'Relative filesystem paths work');
 
     uri = Envjs.uri('http://foo.com');
     equals(uri, 'http://foo.com/', 'http, absolute, without path, without ending "/"');
