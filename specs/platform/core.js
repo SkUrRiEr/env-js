@@ -41,6 +41,8 @@ test('Envjs.uri', function(){
     ok(uri, 'Able to create uri');
     equals(uri, 'http://envjs.com/specs/env/spec.html', 'uri');
     equals(uri.toString(), 'http://envjs.com/specs/env/spec.html', 'uri');
+	
+	document = null;
 
     uri = Envjs.uri('http://envjs.com/specs/env/spec.html');
     ok(uri, 'Able to create uri');
