@@ -4914,9 +4914,10 @@ __extend__(HTMLTableRowElement.prototype, {
             for (var i=0; i<idx; i++) {
                 node = node.nextSibling;
             }
+
+            this.insertBefore(cell, node);
         }
 
-        this.insertBefore(cell, node);
         cell.cellIndex = idx;
 
         return cell;
