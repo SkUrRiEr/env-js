@@ -278,6 +278,8 @@ __appendChild__ = function(nodelist, newChild) {
 };
 
 __addToIndexes__ = function(node, ancestor){
+  // see https://github.com/envjs/env-js/issues#issue/11
+  if (!ancestor) { return; }
 	var indexes, index, normalizedName, i, j, descendingIndex, offset, sibling, children, id, name;
 	if(node.nodeType == Node.ELEMENT_NODE){
 		log.debug('updating node indexes for node %s ancestor %s', node.tagName, ancestor.nodeName);
@@ -1017,7 +1019,17 @@ __extend__(Node.prototype, {
         // use Implementation.hasFeature to determine if this feature is supported
         return __ownerDocument__(this).implementation.hasFeature(feature, version);
     },
+    // see https://github.com/envjs/env-js/issues#issue/11
     getElementsByTagName : function(tagname) {
+      // delegate to _getElementsByTagNameRecursive
+      // recurse childNodes
+      var nodelist = new NodeList(__ownerDocument__(this));
+      for(var i = 0; i < this.childNodes.length; i++) {
+        nodeList = __getElementsByTagNameRecursive__(this.childNodes.item(i), tagname, nodelist);
+      }
+      return nodelist;
+    },
+    getElementsByTagName_BUG : function(tagname) {
         // delegate to _getElementsByTagNameRecursive
         // recurse childNodes
 		log.debug('getElementsByTagName %s',tagname);
