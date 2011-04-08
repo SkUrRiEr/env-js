@@ -141,6 +141,7 @@ Envjs.once('tick', function(){
 exports.CSS2Properties = CSS2Properties = function(element){
     //console.log('css2properties %s', __cssproperties__++);
     this.styleIndex = __supportedStyles__;//non-standard
+    this.styleProps = {};
     this.type = element.tagName;//non-standard
     __setArray__(this, []);
     __cssTextToStyles__(this, element.cssText || '');
@@ -165,7 +166,7 @@ __extend__(CSS2Properties.prototype, {
     getPropertyValue: function(name) {
         var index, cname = __toCamelCase__(name);
         if (cname in this.styleIndex) {
-            return this[cname];
+            return this.styleProps[cname];
         } else {
             index = Array.prototype.indexOf.apply(this, [name]);
             if (index > -1) {
@@ -178,7 +179,7 @@ __extend__(CSS2Properties.prototype, {
         return this[index];
     },
     removeProperty: function(name) {
-        this.styleIndex[name] = null;
+        this.styleProps[name] = null;
         name = __toDashed__(name);
         var index = Array.prototype.indexOf.apply(this, [name]);
         if (index > -1) {
@@ -192,7 +193,7 @@ __extend__(CSS2Properties.prototype, {
             // NOTE:  parseFloat('300px') ==> 300  no
             // NOTE:  Number('300px') ==> Nan      yes
             nval = Number(value);
-            this.styleIndex[name] = isNaN(nval) ? value : nval;
+            this.styleProps[name] = isNaN(nval) ? value : nval;
             name = __toDashed__(name);
             if (Array.prototype.indexOf.apply(this, [name]) === -1 ){
                 Array.prototype.push.apply(this,[name]);
@@ -374,22 +375,22 @@ var __addStyleAccessor__ = function(name){
             if (this.display === 'none'){
                 return '0px';
             }
-            return this.styleIndex[name];
+            return this.styleProps[name];
         });
     } else if (name === 'display') {
         //display will be set to a tagName specific value if ''
         CSS2Properties.prototype.__defineGetter__(name, function() {
-            var val = this.styleIndex[name];
+            var val = this.styleProps[name];
             val = val ? val :__displayMap__[this.type];
             return val;
         });
     } else {
         CSS2Properties.prototype.__defineGetter__(name, function() {
-            return this.styleIndex[name];
+            return this.styleProps[name] || this.styleIndex[name];
         });
     }
     CSS2Properties.prototype.__defineSetter__(name, function(value) {
-        this.setProperty(name, value);
+        this.styleProps[name] = value;
     });
 };
 
