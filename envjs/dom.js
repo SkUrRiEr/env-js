@@ -148,8 +148,13 @@ __extend__(NodeList.prototype, {
         }
         return ret;
     },
+    // In our Integration Test environment, we get an error if the NodeList.toArray does not return a clone
     toArray: function () {
-		return this;
+      var children = [];
+      for ( var i=0; i < this.length; i++) {
+        children.push (this[i]);
+      }
+      return children;
     },
     toString: function(){
         return "[object NodeList]";
