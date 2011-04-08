@@ -1479,8 +1479,12 @@ __extend__(NamedNodeMap.prototype, {
         var itemIndex = __findNamedItemIndex__(this, name);
 
         // throw Exception if there is no node named name in this map
-        if (doc.implementation.errorChecking && (itemIndex < 0)) {
-            throw (new DOMException(DOMException.NOT_FOUND_ERR));
+        if (itemIndex < 0) {
+          if (doc.implementation.errorChecking) {
+              throw (new DOMException(DOMException.NOT_FOUND_ERR));
+          } else {
+            return;
+          }
         }
 
         // get Node
@@ -1573,9 +1577,13 @@ __extend__(NamedNodeMap.prototype, {
         // get item index
         var itemIndex = __findNamedItemNSIndex__(this, namespaceURI, localName);
 
-        // throw Exception if there is no matching node in this map
-        if (__ownerDocument__(this).implementation.errorChecking && (itemIndex < 0)) {
-            throw (new DOMException(DOMException.NOT_FOUND_ERR));
+        if (itemIndex < 0) {
+          // throw Exception if there is no matching node in this map
+          if (__ownerDocument__(this).implementation.errorChecking) {
+              throw (new DOMException(DOMException.NOT_FOUND_ERR));
+          } else {
+            return;
+          }
         }
 
         // get Node
@@ -1590,6 +1598,12 @@ __extend__(NamedNodeMap.prototype, {
         
         // return removed node
         return __removeChild__(this, itemIndex);
+    },
+    get value() {
+      return this.__value__ || '';
+    },
+    set value(attr) {
+      this.__value__ = attr;
     },
     get xml() {
         var ret = "";
@@ -4682,6 +4696,17 @@ __extend__(Element.prototype, {
 		log.debug('removing attribute %s for element %s', name, this.nodeName);
         // delegate to NamedNodeMap.removeNamedItem
         return this.attributes.removeNamedItem(name);
+    },
+    clearAttributes: function() {
+      for(i=0;i< this.attributes.length;i++){
+        this.removeAttribute(this.attributes[i].name);
+      }
+    },
+    mergeAttributes: function(src) {
+      var attrs = src.attributes;
+      for(i=0;i< attrs.length;i++){
+        this.setAttribute(attrs[i].name, attrs[i].value);
+      }
     },
     getAttributeNode : function getAttributeNode(name) {
         // delegate to NamedNodeMap.getNamedItem
