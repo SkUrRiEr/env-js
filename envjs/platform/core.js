@@ -1376,6 +1376,20 @@ Envjs.exchangeHTMLDocument = function(doc, text, url) {
         event, 
         frame = doc.__ownerFrame__, 
         i;
+    // emit window.unload event, see https://github.com/envjs/env-js/issues#issue/16
+    try {
+        if (doc === window.document) {
+            // console.log('triggering window.unload from core.js for url '+url);
+            event = doc.createEvent('HTMLEvents');
+            event.initEvent('unload', false, false);
+            window.dispatchEvent( event, false );
+            // clear the timers, see https://github.com/envjs/env-js/issues#issue/15
+            Envjs.timers.length = 0; 
+        }
+    } catch (eee) {
+        log.debug('window unload event failed %s', eee);
+        //swallow
+    }
     try {
         HTMLParser = HTMLParser || require('envjs/parser').HTMLParser;
         //do some cleanup so we can reuse the document
