@@ -1802,7 +1802,7 @@ __extend__(HTMLAnchorElement.prototype, {
     },
     get href() {
         var link = this.getAttribute('href');
-        if (!link) {
+        if (!link || link === '#' || link === 'javascript:void(0);') {
             return '';
         }
         return Envjs.uri(link, this.ownerDocument.location.toString());
