@@ -665,7 +665,7 @@ __extend__(Node.prototype, {
         this.appendChild(text);
     },
     insertBefore : function(newChild, refChild) {
-		log.debug('insert %s Before %s', newChild.nodeName, refChild.nodeName);
+		log.debug('insert %s Before %s', newChild && newChild.nodeName, refChild && refChild.nodeName);
         var prevNode;
 
         if(!newChild){
