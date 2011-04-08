@@ -53,10 +53,14 @@ class Runtime
 end
 
 class HTTPConnection
+
   def connect(host, port)
+    Rails.logger.debug("Conneting to #{host}:#{port}") if Rails.logger.debug?
     Net::HTTP.start(host, port)
   end
+
   def request(httpMethod, path)
+    Rails.logger.debug("Requesting #{httpMethod}:#{path}") if Rails.logger.debug?
     case httpMethod
     when "GET" then return Net::HTTP::Get.new(path) 
     when "PUT" then return Net::HTTP::Put.new(path) 
@@ -66,16 +70,34 @@ class HTTPConnection
     else return nil
     end
   end
+  
   def go(connection, request, headers, data)
-    headers.each{|key,value| request.add_field(key,value)}
-    response, body = connection.request(request, data)
-    respheaders = Hash.new
-    response.each_header do |name, value|
-      respheaders.store(name, value)
+    _headers = _ruby_hash(headers)
+    # TODO: Why do the headers not contain e.g. HTTP_REFERER? The next line of code should not be necessary...
+    _headers.each{ |name, value| _headers["HTTP_#{name.upcase.gsub("-", "_")}"] =  value }
+    Rails.logger.debug("HTTPConnection.go(#{connection.inspect}, #{request.path}, #{_headers.inspect}, #{data})") if Rails.logger.debug?
+    begin
+      _headers.each{|key,value| request.add_field(key,value)}
+      response, body = connection.request(request, data)
+      response['body'] = body
+      # collect response headers
+      response_headers = {}
+      response.each_header { |name, value| response_headers[name] = value }
+    rescue Exception => e
+      puts "HTTP Request failed: #{e.inspect}"
+      raise e
     end
-    response['body'] = body
-    [response, respheaders]
+#    Rails.logger.debug("HTTPConnection.response(#{response.inspect}, #{response_headers.inspect})") if Rails.logger.debug?
+    [response, response_headers]
   end
+
+  # map V8::Object to plain Ruby hash
+  def _ruby_hash(headers)
+    _headers = {}
+    headers.each{|key,value| _headers[key] = value.is_a?(V8::Object) ? value.toString() : value }
+    _headers
+  end
+
   def finish(connection)
     connection.finish if connection.started?
   end
