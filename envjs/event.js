@@ -203,9 +203,9 @@ __dispatchEvent__ = function(target, event, bubbles){
         if ((typeof target.getAttribute === 'function') && target.getAttribute("on" + event.type)) {
           script = target.getAttribute("on" + event.type);
           // return is not allowed within __eval__, so I am adding a temporary function around it
-          script = script.replace('javascript:', 'javascript:document._tmp_on_event = function(){ ')+"}";
+          script = 'document._tmp_on_event = function(args){ ' + script.replace('javascript:', '') + ' }';
           var tmp_function = eval(script);
-          var returnValue = tmp_function();
+          var returnValue = tmp_function.apply(target, [event]);
           if(returnValue === false){
               event.stopPropagation();
           }
