@@ -182,6 +182,7 @@ exports.Location = Location = function(url, doc, history) {
             return $url;
         },
         set href(url) {
+            if (url === $url || url+'#' === $url || url === $url+'#') { return; }
             $url = url;
             if ($history) {
                 $history.add($url, 'href');
