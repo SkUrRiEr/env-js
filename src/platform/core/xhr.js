@@ -151,13 +151,15 @@ Envjs.localXHR = function(url, xhr, connection, data){
             xhr.statusText = "ok";
             xhr.responseText = Envjs.readFromFile(url);
             try{
-                if(url.match(/html$/)){
+                //url as passed in here might be an object, so stringify it
+                var urlstring = url.toString();
+                if(urlstring.match(/html$/)){
                     xhr.responseHeaders["Content-Type"] = 'text/html';
-                }else if(url.match(/.xml$/)){
+                }else if(urlstring.match(/.xml$/)){
                     xhr.responseHeaders["Content-Type"] = 'text/xml';
-                }else if(url.match(/.js$/)){
+                }else if(urlstring.match(/.js$/)){
                     xhr.responseHeaders["Content-Type"] = 'text/javascript';
-                }else if(url.match(/.json$/)){
+                }else if(urlstring.match(/.json$/)){
                     xhr.responseHeaders["Content-Type"] = 'application/json';
                 }else{
                     xhr.responseHeaders["Content-Type"] = 'text/plain';
