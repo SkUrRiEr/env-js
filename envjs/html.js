@@ -1802,7 +1802,7 @@ __extend__(HTMLAnchorElement.prototype, {
     },
     get href() {
         var link = this.getAttribute('href');
-        if (!link) {
+        if (!link || link === '#' || link === 'javascript:void(0);') {
             return '';
         }
         return Envjs.uri(link, this.ownerDocument.location.toString());
@@ -4178,6 +4178,11 @@ __extend__(HTMLSelectElement.prototype, {
                 return i;
             }
         }
+        // Select the first option
+        if (options.length > 0) {
+          options[0].selected = true;
+          return 0;
+        }
         //console.log('select get selectedIndex %s', -1);
         return -1;
     },
@@ -4914,9 +4919,10 @@ __extend__(HTMLTableRowElement.prototype, {
             for (var i=0; i<idx; i++) {
                 node = node.nextSibling;
             }
+
+            this.insertBefore(cell, node);
         }
 
-        this.insertBefore(cell, node);
         cell.cellIndex = idx;
 
         return cell;

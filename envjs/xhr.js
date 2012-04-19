@@ -182,6 +182,7 @@ exports.Location = Location = function(url, doc, history) {
             return $url;
         },
         set href(url) {
+            if (url === $url || url+'#' === $url || url === $url+'#') { return; }
             $url = url;
             if ($history) {
                 $history.add($url, 'href');
@@ -541,7 +542,7 @@ XMLHttpRequest.prototype = {
             throw new Error("INVALID_STATE_ERR");
         } else {
             for (header in this.responseHeaders) {
-                if(this.responseHeader.hasOwnProperty(header)){
+                if(this.responseHeaders.hasOwnProperty(header)){
                     returnedHeaders.push( header + ": " + this.responseHeaders[header] );
                 }
             }

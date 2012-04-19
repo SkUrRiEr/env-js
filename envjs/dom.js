@@ -148,8 +148,13 @@ __extend__(NodeList.prototype, {
         }
         return ret;
     },
+    // In our Integration Test environment, we get an error if the NodeList.toArray does not return a clone
     toArray: function () {
-		return this;
+      var children = [];
+      for ( var i=0; i < this.length; i++) {
+        children.push (this[i]);
+      }
+      return children;
     },
     toString: function(){
         return "[object NodeList]";
@@ -278,6 +283,8 @@ __appendChild__ = function(nodelist, newChild) {
 };
 
 __addToIndexes__ = function(node, ancestor){
+  // see https://github.com/envjs/env-js/issues#issue/11
+  if (!ancestor) { return; }
 	var indexes, index, normalizedName, i, j, descendingIndex, offset, sibling, children, id, name;
 	if(node.nodeType == Node.ELEMENT_NODE){
 		log.debug('updating node indexes for node %s ancestor %s', node.tagName, ancestor.nodeName);
@@ -658,7 +665,7 @@ __extend__(Node.prototype, {
         this.appendChild(text);
     },
     insertBefore : function(newChild, refChild) {
-		log.debug('insert %s Before %s', newChild.nodeName, refChild.nodeName);
+		log.debug('insert %s Before %s', newChild && newChild.nodeName, refChild && refChild.nodeName);
         var prevNode;
 
         if(!newChild){
@@ -1017,7 +1024,17 @@ __extend__(Node.prototype, {
         // use Implementation.hasFeature to determine if this feature is supported
         return __ownerDocument__(this).implementation.hasFeature(feature, version);
     },
+    // see https://github.com/envjs/env-js/issues#issue/11
     getElementsByTagName : function(tagname) {
+      // delegate to _getElementsByTagNameRecursive
+      // recurse childNodes
+      var nodelist = new NodeList(__ownerDocument__(this));
+      for(var i = 0; i < this.childNodes.length; i++) {
+        nodeList = __getElementsByTagNameRecursive__(this.childNodes.item(i), tagname, nodelist);
+      }
+      return nodelist;
+    },
+    getElementsByTagName_BUG : function(tagname) {
         // delegate to _getElementsByTagNameRecursive
         // recurse childNodes
 		log.debug('getElementsByTagName %s',tagname);
@@ -1462,8 +1479,12 @@ __extend__(NamedNodeMap.prototype, {
         var itemIndex = __findNamedItemIndex__(this, name);
 
         // throw Exception if there is no node named name in this map
-        if (doc.implementation.errorChecking && (itemIndex < 0)) {
-            throw (new DOMException(DOMException.NOT_FOUND_ERR));
+        if (itemIndex < 0) {
+          if (doc.implementation.errorChecking) {
+              throw (new DOMException(DOMException.NOT_FOUND_ERR));
+          } else {
+            return;
+          }
         }
 
         // get Node
@@ -1556,9 +1577,13 @@ __extend__(NamedNodeMap.prototype, {
         // get item index
         var itemIndex = __findNamedItemNSIndex__(this, namespaceURI, localName);
 
-        // throw Exception if there is no matching node in this map
-        if (__ownerDocument__(this).implementation.errorChecking && (itemIndex < 0)) {
-            throw (new DOMException(DOMException.NOT_FOUND_ERR));
+        if (itemIndex < 0) {
+          // throw Exception if there is no matching node in this map
+          if (__ownerDocument__(this).implementation.errorChecking) {
+              throw (new DOMException(DOMException.NOT_FOUND_ERR));
+          } else {
+            return;
+          }
         }
 
         // get Node
@@ -1573,6 +1598,12 @@ __extend__(NamedNodeMap.prototype, {
         
         // return removed node
         return __removeChild__(this, itemIndex);
+    },
+    get value() {
+      return this.__value__ || '';
+    },
+    set value(attr) {
+      this.__value__ = attr;
     },
     get xml() {
         var ret = "";
@@ -4665,6 +4696,17 @@ __extend__(Element.prototype, {
 		log.debug('removing attribute %s for element %s', name, this.nodeName);
         // delegate to NamedNodeMap.removeNamedItem
         return this.attributes.removeNamedItem(name);
+    },
+    clearAttributes: function() {
+      for(i=0;i< this.attributes.length;i++){
+        this.removeAttribute(this.attributes[i].name);
+      }
+    },
+    mergeAttributes: function(src) {
+      var attrs = src.attributes;
+      for(i=0;i< attrs.length;i++){
+        this.setAttribute(attrs[i].name, attrs[i].value);
+      }
     },
     getAttributeNode : function getAttributeNode(name) {
         // delegate to NamedNodeMap.getNamedItem
