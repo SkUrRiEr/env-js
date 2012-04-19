@@ -860,6 +860,50 @@
                      console, dom, event, timer,
                      html, parser, xhr,
                      css,  window">
+        <!-- CORE -->
+        <echo message="Building ${ENV_DIST}" />
+        <concat destfile="${ENV_DIST}">
+            <filterchain>
+                <replacetokens>
+                    <token key="VERSION" value="${BUILD_VERSION}"/>
+                    <token key="BUILD_VERSION" value="${BUILD_VERSION}"/>
+                </replacetokens>
+            </filterchain>
+            <fileset dir="${DIST_DIR}" includes="platform/core.js" />
+            <fileset dir="${DIST_DIR}" includes="console.js" />
+            <fileset dir="${DIST_DIR}" includes="dom.js" />
+            <fileset dir="${DIST_DIR}" includes="event.js" />
+            <fileset dir="${DIST_DIR}" includes="timer.js" />
+            <fileset dir="${DIST_DIR}" includes="html.js" />
+            <fileset dir="${DIST_DIR}" includes="css.js" />
+            <fileset dir="${DIST_DIR}" includes="parser.js" />
+            <fileset dir="${DIST_DIR}" includes="xhr.js" />
+            <fileset dir="${DIST_DIR}" includes="window.js" />
+        </concat>
+        <echo message="${ENV_DIST} built." />
+
+        <!-- RHINO -->
+        <echo message="Building ${ENV_RHINO}" />
+        <concat destfile="${ENV_RHINO}">
+            <filterchain>
+                <replacetokens>
+                    <token key="VERSION" value="env-${BUILD_VERSION}"/>
+                    <token key="BUILD_VERSION" value="${BUILD_VERSION}"/>
+                </replacetokens>
+            </filterchain>
+            <fileset dir="${DIST_DIR}" includes="platform/core.js" />
+            <fileset dir="${DIST_DIR}" includes="platform/rhino.js" />
+            <fileset dir="${DIST_DIR}" includes="console.js" />
+            <fileset dir="${DIST_DIR}" includes="dom.js" />
+            <fileset dir="${DIST_DIR}" includes="event.js" />
+            <fileset dir="${DIST_DIR}" includes="timer.js" />
+            <fileset dir="${DIST_DIR}" includes="html.js" />
+            <fileset dir="${DIST_DIR}" includes="css.js" />
+            <fileset dir="${DIST_DIR}" includes="parser.js" />
+            <fileset dir="${DIST_DIR}" includes="xhr.js" />
+            <fileset dir="${DIST_DIR}" includes="window.js" />
+        </concat>
+        <echo message="${ENV_RHINO} built." />
     </target>
 
 </project>
