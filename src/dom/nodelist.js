@@ -59,8 +59,13 @@ __extend__(NodeList.prototype, {
         }
         return ret;
     },
+    // In our Integration Test environment, we get an error if the NodeList.toArray does not return a clone
     toArray: function () {
-		return this;
+      var children = [];
+      for ( var i=0; i < this.length; i++) {
+        children.push (this[i]);
+      }
+      return children;
     },
     toString: function(){
         return "[object NodeList]";
@@ -189,6 +194,8 @@ __appendChild__ = function(nodelist, newChild) {
 };
 
 __addToIndexes__ = function(node, ancestor){
+  // see https://github.com/envjs/env-js/issues#issue/11
+  if (!ancestor) { return; }
 	var indexes, index, normalizedName, i, j, descendingIndex, offset, sibling, children, id, name;
 	if(node.nodeType == Node.ELEMENT_NODE){
 		log.debug('updating node indexes for node %s ancestor %s', node.tagName, ancestor.nodeName);

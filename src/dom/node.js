@@ -132,7 +132,7 @@ __extend__(Node.prototype, {
         this.appendChild(text);
     },
     insertBefore : function(newChild, refChild) {
-		log.debug('insert %s Before %s', newChild.nodeName, refChild.nodeName);
+		log.debug('insert %s Before %s', newChild && newChild.nodeName, refChild && refChild.nodeName);
         var prevNode;
 
         if(!newChild){
@@ -491,7 +491,17 @@ __extend__(Node.prototype, {
         // use Implementation.hasFeature to determine if this feature is supported
         return __ownerDocument__(this).implementation.hasFeature(feature, version);
     },
+    // see https://github.com/envjs/env-js/issues#issue/11
     getElementsByTagName : function(tagname) {
+      // delegate to _getElementsByTagNameRecursive
+      // recurse childNodes
+      var nodelist = new NodeList(__ownerDocument__(this));
+      for(var i = 0; i < this.childNodes.length; i++) {
+        nodeList = __getElementsByTagNameRecursive__(this.childNodes.item(i), tagname, nodelist);
+      }
+      return nodelist;
+    },
+    getElementsByTagName_BUG : function(tagname) {
         // delegate to _getElementsByTagNameRecursive
         // recurse childNodes
 		log.debug('getElementsByTagName %s',tagname);

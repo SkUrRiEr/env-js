@@ -72,6 +72,17 @@ __extend__(Element.prototype, {
         // delegate to NamedNodeMap.removeNamedItem
         return this.attributes.removeNamedItem(name);
     },
+    clearAttributes: function() {
+      for(i=0;i< this.attributes.length;i++){
+        this.removeAttribute(this.attributes[i].name);
+      }
+    },
+    mergeAttributes: function(src) {
+      var attrs = src.attributes;
+      for(i=0;i< attrs.length;i++){
+        this.setAttribute(attrs[i].name, attrs[i].value);
+      }
+    },
     getAttributeNode : function getAttributeNode(name) {
         // delegate to NamedNodeMap.getNamedItem
         return this.attributes.getNamedItem(name);
