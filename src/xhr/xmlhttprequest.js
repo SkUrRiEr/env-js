@@ -201,7 +201,7 @@ XMLHttpRequest.prototype = {
             throw new Error("INVALID_STATE_ERR");
         } else {
             for (header in this.responseHeaders) {
-                if(this.responseHeader.hasOwnProperty(header)){
+                if(this.responseHeaders.hasOwnProperty(header)){
                     returnedHeaders.push( header + ": " + this.responseHeaders[header] );
                 }
             }
