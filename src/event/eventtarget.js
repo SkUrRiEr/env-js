@@ -130,6 +130,20 @@ __dispatchEvent__ = function(target, event, bubbles){
         if (target["on" + event.type]) {
             target["on" + event.type](event);
         }
+
+        // START: https://github.com/envjs/env-js/issues/19: Looks like the MouseEvents are not bound
+        if ((typeof target.getAttribute === 'function') && target.getAttribute("on" + event.type)) {
+          script = target.getAttribute("on" + event.type);
+          // return is not allowed within __eval__, so I am adding a temporary function around it
+          script = 'document._tmp_on_event = function(args){ ' + script.replace('javascript:', '') + ' }';
+          var tmp_function = eval(script);
+          var returnValue = tmp_function.apply(target, [event]);
+          if(returnValue === false){
+              event.stopPropagation();
+          }
+        }
+        // END: https://github.com/envjs/env-js/issues/19: Looks like the MouseEvents are not bound
+
         if (bubbles && !event.cancelled){
             __bubbleEvent__(target, event);
         }
