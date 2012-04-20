@@ -75,6 +75,7 @@ Envjs.connection = function(xhr, responseHandler, data){
     var url = xhr.url,
 		urlparts = Envjs.urlsplit(xhr.url),
         connection,
+        form_data = '',
 		request,
 		headers,
         header,
@@ -112,11 +113,11 @@ Envjs.connection = function(xhr, responseHandler, data){
 	        if(data){
 	            if(data instanceof Document){
 	                if ( xhr.method == "PUT" || xhr.method == "POST" ) {
-	                    connection.send((new XMLSerializer()).serializeToString(data));
+	                    form_data = (new XMLSerializer()).serializeToString(data);
 	                }
 	            }else if(data.length&&data.length>0){
 	                if ( xhr.method == "PUT" || xhr.method == "POST" ) {
-	                    connection.send(data+'');
+	                    form_data = data+'';
 	                }
 	            }
 	        }
@@ -131,7 +132,7 @@ Envjs.connection = function(xhr, responseHandler, data){
 
     if(connection){
 		log.debug('loading response from native ruby connection');
-		response = HTTPConnection.go(connection, request, xhr.headers, null);
+		response = HTTPConnection.go(connection, request, xhr.headers, form_data);
 		log.debug('got response from native ruby connection');
 		headers = response[1];
 		response = response[0];
@@ -146,7 +147,7 @@ Envjs.connection = function(xhr, responseHandler, data){
         }
 
         xhr.readyState = 4;
-        xhr.status = parseInt(response.code,10) || undefined;
+        xhr.status = parseInt(response.status,10) || undefined;
         xhr.statusText = response.message || "";
 		log.info('%s %s %s %s', xhr.method, xhr.status, xhr.url, xhr.statusText);
         contentEncoding = xhr.getResponseHeader('content-encoding') || "utf-8";
