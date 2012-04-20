@@ -15,17 +15,22 @@ Envjs.once('tick', function(){
  * @param {Object} time
  */
 exports.setTimeout = setTimeout = function(fn, time){
-	log.debug('setTimeout %s', time);
-	return Envjs.timers.addTimerOrInterval(fn, time, 'timeout');
+  log.debug('setTimeout %s', time);
+  if (time === 0) {
+    fn.apply(fn,[]);
+    return -1;
+  } else {
+    return Envjs.timers.addTimerOrInterval(fn, time, 'timeout');
+  }
 };
 
 /**
  * clearTimeout
  * @param {Object} id
  */
-exports.clearTimeout = clearTimeout = function(id){	
-	log.debug('clearTimeout %s', id);
-	return Envjs.timers.removeTimerOrInterval(id, 'timeout');
+exports.clearTimeout = clearTimeout = function(id){ 
+  log.debug('clearTimeout %s', id);
+  return id === -1 ? null : Envjs.timers.removeTimerOrInterval(id, 'timeout');
 };
 
 /**
