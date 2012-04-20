@@ -90,6 +90,11 @@ __extend__(HTMLSelectElement.prototype, {
                 return i;
             }
         }
+        // Select the first option
+        if (options.length > 0) {
+          options[0].selected = true;
+          return 0;
+        }
         //console.log('select get selectedIndex %s', -1);
         return -1;
     },
