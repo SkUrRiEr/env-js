@@ -14,7 +14,7 @@ fi
 case "$ENVJS_PLATFORM" in
 
     "node")
-        node envjs/node.js $@
+        NODE_PATH=. node envjs/node.js $@
         ;;
     "rhino")
         java -Xmx512M -jar rhino/js.jar -opt -1 envjs/rhino.js $@
@@ -33,7 +33,7 @@ case "$ENVJS_PLATFORM" in
         ;;
 	*)
 		#	platform default means $1 was actually a file
-        node envjs/node.js $ENVJS_PLATFORM $@
+        NODE_PATH=. node envjs/node.js $ENVJS_PLATFORM $@
         ;;
 esac
 
