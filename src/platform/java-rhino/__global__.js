@@ -20,6 +20,6 @@ if(__argv__ && __argv__.length){
 	}
 }
 
-Envjs.exit = function(){
+Envjs.exit = Envjs.exit || function(){
 	java.lang.System.exit(0);
 };
