@@ -43,16 +43,27 @@ var require = (function() {
         }
         return String(bytesStream.toString());
     };
+
+    function readAndroid(id) {
+        //try load Android asset, requires a loadAssetAsString() function to be in place
+        if (loadAssetAsString && typeof(loadAssetAsString) === typeof(Function)) {
+            // print("reading source of: " + id);
+            return '' + loadAssetAsString(id); //concatenate to make sure it is a JS string, not a Java string
+        }
+        return '';
+    };
     
     function require(id) {
 		//print('require :'+ id);
         var url = normalize(id);
-        if (!url) {
-            throw new Error("couldn't find module \"" + id + "\"");
-        }
-        id = String(url.toString());
+        // id is the file url if exists, or appent .js to id
+        id = !url ? id + '.js' : String(url.toString());
         if (!cached.hasOwnProperty(id)) {
-            var source = read(url.openConnection());
+            // try read source from Android if no url
+            var source = !url ? readAndroid(id) : read(url.openConnection());
+            if (!source) {
+                throw new Error("couldn't find module \"" + id + "\"");
+            }
             source = source.replace(/^\#\!.*/, '');
             source = (
                 "(function (require, exports, module) { " + source + "\n});");
