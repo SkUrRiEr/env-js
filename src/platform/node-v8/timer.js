@@ -4,7 +4,7 @@ var $tick = function(){
     process.nextTick(function () {
         //console.log('node tick');
         Envjs.tick();
-        $tick();
+        setImmediate($tick);
     });
 };
     
